@@ -19,3 +19,7 @@
 **1_multiple_optimisations**
 
 In this folder, I show my consideration about variation of BIC score. It is too large, so my algorithm in first script cannot garantee it can always get optimal number of classes.
+
+**algorithm_ver2**
+
+I set repeatitions in my algorithm, to reduce the influence of large variation.
