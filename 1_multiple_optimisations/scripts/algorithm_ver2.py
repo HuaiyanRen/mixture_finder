@@ -34,7 +34,7 @@ def optimize_classes(file_position, iqtree_position, file_name, score_type, repe
 
     tree_file = tree_file_name(file_position,classes) # assign the iqtree file name generated in last step
 
-    score_list = iqtree_ten_repeatitions(cmd, tree_file, score_type, repeats) # run iqtree 10 times and list the scores
+    score_list = iqtree_repeatitions(cmd, tree_file, score_type, repeats) # run iqtree 10 times and list the scores
 
     new_score = np.min(score_list) # get the lowest score of 10 repeatitions
     
@@ -50,7 +50,7 @@ def optimize_classes(file_position, iqtree_position, file_name, score_type, repe
         
         tree_file = tree_file_name(file_position,classes) # assign the iqtree file name generated in last step
         
-        score_list = iqtree_ten_repeatitions(cmd, tree_file, score_type, repeats) # run iqtree 10 times and list the scores
+        score_list = iqtree_repeatitions(cmd, tree_file, score_type, repeats) # run iqtree 10 times and list the scores
     
         new_score = np.min(score_list) # get the lowest score of 10 repeatitions
         
@@ -88,7 +88,7 @@ def tree_file_name(file_position,classes):
     else:
         return file_position.split()[-1] + '/' + str(classes) +'classes.iqtree'
 
-def iqtree_ten_repeatitions(cmd, tree_file, score_type, repeats):
+def iqtree_repeatitions(cmd, tree_file, score_type, repeats):
     '''repeat the iqtree commend ten times and return a list of ten scores'''
     score_list = []
 
@@ -97,8 +97,6 @@ def iqtree_ten_repeatitions(cmd, tree_file, score_type, repeats):
         os.system(cmd)
     
         new_score = float(find_score(tree_file, score_type))
-    
-        #print(new_score)
     
         score_list.append(new_score)
         
