@@ -23,3 +23,9 @@ In this folder, I show my consideration about variation of BIC score. It is too 
 **algorithm_ver2**
 
 I set repeatitions in my algorithm, to reduce the influence of large variation.
+
+#### Mar 8th, 2020
+
+**algorithm_ver2**
+
+JC, HKY and GTR models will be considered in each step. The one with lowest score will be kept in class of the full model.
