@@ -2,17 +2,65 @@
 
 **This is an algorithm to find the optimal number of classes in mixture model.**
 
-1. Start with class 1, find the best (lowest AIC or BIC score) model.
-2. Add a class, find the best model in the new class, which give the lowest score to full model.
-   
-   - If the new score is lower than previous, keep the new model.
+### The algotithm is written as a function in python script. ###
 
-     - Fix the new model, go back and check whether there will be a lower score by changing the model in previous classes. Keep model with the lowest score.
-     - Go back to step 2.
-   
-   - If the new score is higher than previous, keep the previous model, go to step 3.
+**Name:** 
 
-3. Conclude current model, this is the optimal mixture model.
+optimize_classes()
+
+**Parameters of function:**
+
+*file_position*: cmd statement that open (should include 'cd' comment) the folder including sequence file. Use ' \ '.
+
+*iqtree_position*: the folder including iqtree files (iqtree2, iqtree2-click, libiomp5md.dll). Use '/'. (I am windows user.)
+
+*file_name*: the name of sequence file.
+
+*score_type*: '(AIC)', '(AICc)', '(BIC)'
+
+*repeats*: the times of fitting the model in each step.
+
+**Return:** 
+
+*The optimal numbers of classes* and *the full model*.
+
+**Version:**
+
+Now, it is version 4:  *mixture_finder/1_multiple_optimisations/scripts/algorithm_ver4.py*
+
+### function structure ###
+
+1. Start with class 1.
+
+   - try all submodels of GTR model, choose the one with the lowest score.
+   
+2. Add a new class.
+   
+   - try all submodels of GTR model in the new class, choose the one with the new lowest score.
+   
+      - if the new score is lower than the last one:
+
+         - keep the newly added class fixed and try to change the class 1 by all submodels of GTR model.
+
+         - if there is a lower score, change the submodel in class 1 to corresponding sbumodel.
+
+            - if the class 1 is changed, then do these changing to class 2,3..., until there is no change or we've changed all previous classes.
+
+   - repeat step 2 until the score increases by adding a new class.
+
+3. Conclude the results and return.
+
+**NOTICE**
+
+The parameters that including commandline should be carefully checked.
+
+In each repeatition, the lowest score will be choose. Repeatition aims to reducing random error of running IQ-TREE.
+
+The python module *os* and *numpy* are used in this function.
+
+This function includes some sub functions.
+
+## Logs ##
    
 #### Mar 4th, 2020
 
