@@ -20,9 +20,9 @@ def optimize_classes(file_position, iqtree_position, file_name, score_type, repe
        
        file_name: the name of sequence file.
        
-       score_type: '(AIC)', '(AICc)', '(BIC)'
+       score_type: '(AIC)', '(AICc)', '(BIC)'.
        
-       repeats: the times of fitting the model in each fitting'''
+       repeats: the times of fitting the model in each step.'''
 # initial variables       
     last_score = 9999999999 # the score of last step, used for comparing
     classes = 1 # start with 1 class
