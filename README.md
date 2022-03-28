@@ -28,7 +28,7 @@ I set repeatitions in my algorithm, to reduce the influence of large variation.
 
 **algorithm_ver3**
 
-JC, HKY and GTR models will be considered in each step. The one with lowest score will be kept in class of the full model.
+JC, HKY and GTR models (all GTR sub models can be included in the algorithm) will be considered in each step. The one with lowest score will be kept in class of the full model.
 
 #### Mar 18th, 2020
 
@@ -36,3 +36,13 @@ JC, HKY and GTR models will be considered in each step. The one with lowest scor
 
 In this algorithm, at first, estimate the number of conponents of 1:10, and find the lowest score, in case the score is not monotone decreasing and increasing.
 After got the lowest score, fix the number of coponents and attempt to replace GTR by other classes (JC, HKY) in each components, seeking possible lower score.
+
+This idea is not good. Abandon.
+
+#### Mar 28th, 2020
+
+**algorithm_ver4**
+
+In this version, after successfully adding a class, all previous classes will be check: whether there will be a better sub model in previous classes.
+
+
