@@ -4,6 +4,18 @@
 
 ### The algotithm is written as a function in python script. ###
 
+*To use the code, just assign the parameters (at bottom of the python file) and run the file.*
+
+**Version:**
+
+Now, it is version 4:  *mixture_finder/1_multiple_optimisations/scripts/algorithm_ver4.py*
+
+### **LINUX:**
+
+This is version 5. It's the same algorithm as version 4, but good to be run in server.
+
+In this version, the output is a txt file: _results/result.txt_. The parameter *file_position* and *iqtree_position* don't need to change.
+
 **Name:** 
 
 optimize_classes()
@@ -23,10 +35,6 @@ optimize_classes()
 **Return:** 
 
 *The optimal numbers of classes* and *the full model*.
-
-**Version:**
-
-Now, it is version 4:  *mixture_finder/1_multiple_optimisations/scripts/algorithm_ver4.py*
 
 ### function structure ###
 
@@ -93,4 +101,12 @@ This idea is not good. Abandon.
 
 In this version, after successfully adding a class, all previous classes will be check: whether there will be a better sub model in previous classes.
 
+#### Mar 28th, 2020
 
+**algorithm_ver5**
+
+The linux version of ver4.
+
+**algorithm_ver4**
+
+Fixed some bugs.
