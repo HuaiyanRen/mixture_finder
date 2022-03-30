@@ -105,7 +105,7 @@ def optimize_classes(file_position, iqtree_position, file_name, score_type, repe
 
                 # run iqtree software        
                 #cmd = file_position + ' && ' + iqtree_position + '/iqtree2 -s ' + file_name + model_select(model_num_seq_change) # build the cmd to run iqtree fitting mixture model        
-                cmd = 'iqtree2 -s ' + file_name + model_select(model_num_seq_loop) # build the cmd to run iqtree fitting mixture model
+                cmd = 'iqtree2 -s ' + file_name + model_select(model_num_seq_change) # build the cmd to run iqtree fitting mixture model
                 tree_file = tree_file_name(file_position,classes) # assign the iqtree file name generated in last step
                 score_list = iqtree_repeatitions(cmd, tree_file, score_type, repeats) # repeatly run iqtree and list the scores                    
                 min_of_list = np.min(score_list) # get the lowest score in repeatitions
@@ -137,7 +137,7 @@ def optimize_classes(file_position, iqtree_position, file_name, score_type, repe
 
                         # run iqtree software
                         #cmd = file_position + ' && ' + iqtree_position + '/iqtree2 -s ' + file_name + model_select(model_num_seq_change) # build the cmd to run iqtree fitting mixture model        
-                        cmd = 'iqtree2 -s ' + file_name + model_select(model_num_seq_loop) # build the cmd to run iqtree fitting mixture model
+                        cmd = 'iqtree2 -s ' + file_name + model_select(model_num_seq_change) # build the cmd to run iqtree fitting mixture model
                         tree_file = tree_file_name(file_position,classes) # assign the iqtree file name generated in last step
                         score_list = iqtree_repeatitions(cmd, tree_file, score_type, repeats) # repeatly run iqtree and list the scores                    
                         min_of_list = np.min(score_list) # get the lowest score in repeatitions
