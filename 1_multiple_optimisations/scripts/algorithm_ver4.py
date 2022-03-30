@@ -1,13 +1,6 @@
 import os
 import numpy as np
 
-# here are the variables that I test my functions.
-
-#file_position ='d: && cd D:\masterresearch\congnato'
-#iqtree_position = 'D:/masterresearch/iqtree2'
-#file_name = 'subalignment.nex'
-#score_type = '(BIC)'
-#repeats = 10
 
 def optimize_classes(file_position, iqtree_position, file_name, score_type, repeats):
     '''This is an algorithm the find the classes of mixture model of lowest score.
@@ -45,7 +38,7 @@ def optimize_classes(file_position, iqtree_position, file_name, score_type, repe
         min_of_list = np.min(score_list) # get the lowest score in repeatitions
         
         # print and record results in repeatition of running a submodel
-        print('class:'+ str(classes), type_dict[i], min_of_list, score_list) # list all the scores generated
+        print('class:'+ str(classes), print_model_names(model_num_seq_loop), min_of_list, score_list) # list all the scores generated
         score_list_loop.append(min_of_list) # record the lowest score
 
     # get the lowest score among different submodels        
@@ -76,7 +69,7 @@ def optimize_classes(file_position, iqtree_position, file_name, score_type, repe
             min_of_list = np.min(score_list) # get the lowest score in repeatitions
 
             # print and record results in repeatition of running a submodel
-            print('class:'+str(classes), type_dict[i], min_of_list, score_list) # list all the scores generated
+            print('class:'+str(classes), print_model_names(model_num_seq_loop), min_of_list, score_list) # list all the scores generated
             score_list_loop.append(min_of_list) # record the lowest score
 
         # get the lowest score among different submodels
@@ -113,10 +106,12 @@ def optimize_classes(file_position, iqtree_position, file_name, score_type, repe
                 if min_of_list < new_score: # once find better score, select the model                        
                     new_score = min_of_list
                     model_num_seq_traceback = list(model_num_seq_change)
-                    # print the change                        
-                    print('better score:' + str(new_score), print_model_names(model_num_seq_traceback))
+                    
+            model_num_seq = list(model_num_seq_traceback)
+            # print the change
+            print('traceback result for class ' + str(pos+1) +': ', print_model_names(model_num_seq_traceback), 'with the score ' + str(new_score))
             
-        # if class 1 is changed, check classes after          
+            # if class 1 is changed, check classes after          
             while model_num_seq_traceback[pos] != model_num_seq[pos]:                
                 pos += 1
                 if pos < len(model_num_seq) - 1:
@@ -140,13 +135,17 @@ def optimize_classes(file_position, iqtree_position, file_name, score_type, repe
                         if min_of_list < new_score: # once find better score, select the model                        
                             new_score = min_of_list
                             model_num_seq_traceback = list(model_num_seq_change)
-                            # print the change                        
-                            print('better score:' + str(new_score),print_model_names(model_num_seq_traceback))
         
+                    model_num_seq = list(model_num_seq_traceback)
+                    # print the change
+                    print('traceback result for class ' + str(pos+1) +': ', print_model_names(model_num_seq_traceback), 'with the score ' + str(new_score))
+
 # once the score increasing, when adding a new class, return the nubmer classes with lowest score.
     model_num_seq.pop() # delete the added new class with increasing score
+    # the final result
+    print('\n the optimal number of classes is:'+ str(classes-1), print_model_names(model_num_seq))
+    return 'ALGORITHM FINISH'
 
-    return 'the optimal number of classes is:'+ str(classes-1), print_model_names(model_num_seq)
 
 
 # sub_functions
@@ -191,3 +190,15 @@ def find_score(filename,score_type):
                 list_line = line.split()
                 score = list_line[-1]
     return score
+
+
+# here are the variables that I test my functions. Users should assign the variables and run the function
+
+file_position ='d: && cd D:\masterresearch\congnato'
+iqtree_position = 'D:/masterresearch/iqtree2'
+file_name = 'subalignment.nex'
+score_type = '(BIC)'
+repeats = 10
+
+# run
+optimize_classes(file_position, iqtree_position, file_name, score_type, repeats)
