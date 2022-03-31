@@ -175,7 +175,7 @@ def model_select(model_num_seq):
     model_type_seq = []
     for n in range(len(model_num_seq)):
         model_type_seq.append(model_type(model_num_seq[n]))
-    return ' -m "MIX{' + ','.join(model_type_seq) + '}" -pre ' + str(len(model_num_seq)) + 'classes -redo'
+    return ' -m "MIX{' + ','.join(model_type_seq) + '}" -pre results/' + str(len(model_num_seq)) + 'classes -redo'
 
 def model_type(numbers):
     '''This function receives a number and returns corresponding model, based on type_dict'''
@@ -184,7 +184,7 @@ def model_type(numbers):
 def tree_file_name(file_position,classes):
     ''' return right cmd statement for renaming the iqtree files with their numbers of classes'''
     #return file_position.split()[-1] + '/' + str(classes) +'classes.iqtree'
-    return str(classes) +'classes.iqtree'
+    return 'results/' + str(classes) + 'classes.iqtree'
 
 def print_model_names(model_num_seq):
     '''the parameter is a list of number the function returns corresponding models'''
@@ -197,7 +197,6 @@ def iqtree_repeatitions(cmd, tree_file, score_type, repeats):
     '''repeat the iqtree commend ten times and return a list of ten scores'''
     score_list = []
     for i in range(repeats):
-        print(cmd)
         os.system(cmd)    
         new_score = float(find_score(tree_file, score_type))    
         score_list.append(new_score)        
