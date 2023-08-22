@@ -20,9 +20,9 @@ with open('modelpara.csv','w+',newline='') as csvf:
 
  
     
-classes = [5]#[1,2,3,4,5] 
+classes = [1,2,3,4,5] 
 rates = [2] # 0: +E, 1: +I, 2: +I+G
-length = [10000]#[1000,2000,5000,10000]
+length = [1000,2000,5000,10000]
 ntaxa = [100]
 replicates = list(np.arange(0,20,1))
 

@@ -57,7 +57,7 @@ def run_alisim(line):
     if rates == 0:
         rate_para = ''
     elif rates == 2:
-        rate_para = '+G{' + line[7] + '}'
+        rate_para = '+I{' + line[6] + '}+G{' + line[7] + '}'
         
     if classes == 1:
         model_para = model_para +rate_para
@@ -65,8 +65,8 @@ def run_alisim(line):
         model_para = model_para + rate_para + '"'
         
     # alisim
-    #alisim_cmd = 'iqtree2 --alisim ' + file_name + model_para + ' --length ' + str(length) + ' -seed ' + str(seed_num) + ' -af fasta -t RANDOM{yh/' + str(ntaxa) + '} -redo'
-    #os.system(alisim_cmd)
+    alisim_cmd = 'iqtree2 --alisim ' + file_name + model_para + ' --length ' + str(length) + ' -seed ' + str(seed_num) + ' -af fasta -t RANDOM{yh/' + str(ntaxa) + '} -redo'
+    os.system(alisim_cmd)
     #edit tree length
     treefile0 = file_name + '.treefile'
     tree0 = open(treefile0,'r').read()
