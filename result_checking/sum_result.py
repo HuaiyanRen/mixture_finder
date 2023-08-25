@@ -184,7 +184,6 @@ for paras in tuple_list:
     min_w = min(true_w) 
     
     result_row = [file_name, classes, ntaxa, length, invariable, 2, true_tree_length, min_w]
-    
 
     
     if os.path.isfile('all/'+ file_name + '.iqtree'):
@@ -202,7 +201,7 @@ for paras in tuple_list:
                     llhm = float(line.split()[4])
                 if 'Bayesian information criterion (BIC) score:'  in line:
                     bicm = float(line.split()[-1])
-                    
+           
         with open('all/' + file_name + '.log') as b:
             for line in b.readlines():
                 if 'chosen according to BIC' in line:
@@ -304,8 +303,7 @@ for paras in tuple_list:
                         est_f[1][2] = float(line.split()[-1])
                     if 'pi(T)' in line:
                         est_f[1][3] = float(line.split()[-1])
-            est_w[0] = 1 - invar   
-                                
+            est_w[0] = 1 - invar                     
         else:
             with open('all/' + file_name + '.iqtree') as b:
                 for line in b.readlines():
@@ -314,7 +312,7 @@ for paras in tuple_list:
                             est_w[i-1] = float(line.split()[-2])
                             est_q[i][0:5] = get_para(line)[0:5]
                             est_f[i][0:4] = get_para(line)[5:9]
-        est_w = [n/sum(est_w) for n in est_w]
+            est_w = [n/sum(est_w) for n in est_w]
                     
         for j in range(1, optimal+1):
             est_deno = sum(est_q[j]) + 1
@@ -322,8 +320,7 @@ for paras in tuple_list:
             est_n[j][1] = est_q[j][1]/est_deno
             est_n[j][2] = est_q[j][2]/est_deno
             est_n[j][3] = est_q[j][3]/est_deno
-            est_n[j][4] = est_q[j][4]/est_deno
-                            
+            est_n[j][4] = est_q[j][4]/est_deno                   
         addendq_1 = 0
         addendq_2 = 0
         addendq_3 = 0
@@ -347,10 +344,8 @@ for paras in tuple_list:
             for c2 in range(int(classes)):
                 
                 factorq = est_w[c1]*true_w[c2]
-                #print('- ',factorq)
                 for qi in range(5):
-                    factorq = factorq*(1-max([est_n[c1+1][qi],true_n[c2+1][qi]]))
-                    #print(factorq, max([est_q[c1+1][qi],true_q[c2+1][qi]]),' from ',[est_q[c1+1][qi],true_q[c2+1][qi]])                
+                    factorq = factorq*(1-max([est_n[c1+1][qi],true_n[c2+1][qi]]))             
                 addendq_2 = addendq_2 + factorq
             
                 factorf = est_w[c1]*true_w[c2]
@@ -369,8 +364,7 @@ for paras in tuple_list:
                 factorf = true_w[c1]*true_w[c2]
                 for fi in range(4):
                     factorf = factorf*(1-max([true_f[c1+1][fi],true_f[c2+1][fi]]))
-                addendf_3 = addendf_3 + factorf
-                     
+                addendf_3 = addendf_3 + factorf             
         ise_q = addendq_1 - 2*addendq_2 + addendq_3
         ise_f = addendf_1 - 2*addendf_2 + addendf_3          
         
@@ -506,7 +500,7 @@ for paras in tuple_list:
                             est_w[i-1] = float(line.split()[-2])
                             est_q[i][0:5] = get_para(line)[0:5]
                             est_f[i][0:4] = get_para(line)[5:9]
-        est_w = [n/sum(est_w) for n in est_w]
+            est_w = [n/sum(est_w) for n in est_w]
                     
         for j in range(1, optimal+1):
             est_deno = sum(est_q[j]) + 1
@@ -642,9 +636,6 @@ for paras in tuple_list:
                 if 'pi(T)' in line:
                     est_f[1][3] = float(line.split()[-1])
         est_w[0] = 1 - invar  
-        est_w = [n/sum(est_w) for n in est_w]        
-
-
                 
                     
         for j in range(1, 2):
