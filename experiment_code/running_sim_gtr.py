@@ -1,6 +1,6 @@
 from multiprocessing import Pool
 from functools import partial
-import os
+import subprocess
 import numpy as np
 import argparse
 #import ast
@@ -36,9 +36,12 @@ def running_tuple(tuple_list):
     #file_name
     file_name = 'c' + str(classes) + '_r' + str(rates) + '_l' + str(length) + '_t' + str(ntaxa) + '_rep' + str(replicates)
     #run
-    cmd = '/scratch/te06/hr8997/software/iqtree-2.2.2.7.modelmix-Linux/bin/iqtree2 -s ' + file_name + '.fa -m "ESTMIXNUM" -mset GTR -mrate E,I,G,I+G,R,I+R -opt_qmix_criteria '+str(int(method))+' -pre gtr/'+ file_name + ' -nt 1'
-    os.system(cmd)
-
+    cmd = '/usr/bin/time -v /data/huaiyan/software/iqtree-2.2.6.mix-Linux/bin/iqtree2 -s ' + file_name + '.fa -m MIX+MFP -lrt 0 -merit BIC -mset GTR -mrate E,I,G,I+G,R,I+R  -pre gtrt/'+ file_name + ' -nt 1 &> gtrt/' + file_name + '_time.txt'
+    result = subprocess.run(cmd, shell=True, text=True, capture_output=True)
+    with open('gtrt/' + file_name + '_time.txt', 'w') as f:
+        #f.write(result.stdout)
+        f.write(result.stderr)
+        
     
 # running
 parser = argparse.ArgumentParser(description='')
