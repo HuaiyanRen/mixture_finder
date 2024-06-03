@@ -1,15 +1,12 @@
 import numpy as np
-import pandas as pd
 import csv 
-import os
-
+from scipy.optimize import linear_sum_assignment
 
 with open('result_weight.csv','w+',newline='') as csvf:
     csv_write = csv.writer(csvf)
     csv_write.writerow(['name', 'classes',  'ntaxa', 'sites', 'invariable',
-                        'tw1', 'tw2', 'tw3', 'tw4', 'tw5',
-                        'ew1', 'ew2', 'ew3', 'ew4', 'ew5', 
-                        'sort_tw', 'sort_ew', 'rmse'])
+                        't_ali',
+                        'e_ali', 'rmse', 'rmse_matrix'])
                        
 classes = [1,2,3,4,5] 
 rates = [2] # 0: +E, 1: +I, 2: +I+G
@@ -30,16 +27,102 @@ for i in range(len(tuple_list)):
 
 
 def file_name_row(file_name):
-    df = pd.read_csv('modelpara.csv')    
-    matching_rows = df[df.iloc[:, 0] == file_name]
-    name_index = matching_rows.index[0]
-    return name_index
+    with open('modelpara.csv', mode='r', newline='') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            if row and row[0] == file_name:
+                return row
+    return None 
 
-def extract_q(row_index, col_names):
-    df = pd.read_csv('modelpara.csv')
+def normal_q(r,f):
+    q= [[0,        r[0]*f[1],r[1]*f[2],r[2]*f[3]],
+        [r[0]*f[0],0        ,r[3]*f[2],r[4]*f[3]],
+        [r[1]*f[0],r[3]*f[1],0        ,1*f[3]],
+        [r[2]*f[0],r[4]*f[1],1*f[2]   ,0]]
+
+    q[0][0] = -sum(q[0])
+    q[1][1] = -sum(q[1])
+    q[2][2] = -sum(q[2])
+    q[3][3] = -sum(q[3])
+
+    dia_sum = - (f[0]*q[0][0] + f[1]*q[1][1] + f[2]*q[2][2] + f[3]*q[3][3])
+    for i in range(4):
+        for j in range(4):
+            q[i][j] = q[i][j]/dia_sum
+        
+    return q
+
+def get_para(line):
+    gtr_all = line.split()[-1]
+    gtr_list = gtr_all.split(',')
     
-    row_data = df.loc[row_index, col_names]
-    return row_data 
+    if '+FO{' in gtr_all:
+        A = float(gtr_list[-4].split('{')[-1])
+        C = float(gtr_list[-3])
+        G = float(gtr_list[-2])
+        T = float(gtr_list[-1].split('}')[0])
+    else:
+        A,C,G,T = 0.25,0.25,0.25,0.25
+
+    if 'JC' in line or 'F81' in line:
+        AC,AG,AT,CG,CT = 1,1,1,1,1
+    elif 'K2P' in line or 'HKY' in line or 'K80' in line:
+        AC,AT,CG = 1,1,1
+        AG = float(gtr_list[0].split('{')[1].split('}')[0])
+        CT = AG
+    elif 'TN' in line:
+        AC,AT,CG = 1,1,1
+        AG = float(gtr_list[0].split('{')[1])
+        CT = float(gtr_list[1].split('}')[0])
+    elif 'K3P' in line or 'K81' in line:
+        AC = 1
+        AG = float(gtr_list[0].split('{')[1])
+        AT = float(gtr_list[1].split('}')[0])
+        CG = AT
+        CT = AG
+    elif 'TPM2' in line:
+        CG = 1
+        AC = float(gtr_list[0].split('{')[1])
+        AG = float(gtr_list[1].split('}')[0])
+        AT = AC
+        CT = AG
+    elif 'TPM3' in line:  
+        AT = 1
+        AC = float(gtr_list[0].split('{')[1])
+        AG = float(gtr_list[1].split('}')[0])
+        CG = AC
+        CT = AG
+    elif 'TIM2' in line:
+        CG = 1
+        AC = float(gtr_list[0].split('{')[1])
+        AG = float(gtr_list[1])
+        AT = AC
+        CT = float(gtr_list[2].split('}')[0])
+    elif 'TIM3' in line:
+        AT = 1
+        AC = float(gtr_list[0].split('{')[1])
+        AG = float(gtr_list[1])
+        CG = AC
+        CT = float(gtr_list[2].split('}')[0])
+    elif 'TIM' in line:
+        AC = 1
+        AG = float(gtr_list[0].split('{')[1])
+        AT = float(gtr_list[1])
+        CG = AT
+        CT = float(gtr_list[2].split('}')[0])
+    elif 'TVM' in line:
+        AC = float(gtr_list[0].split('{')[1])
+        AG = float(gtr_list[1])
+        AT = float(gtr_list[2])
+        CG = float(gtr_list[3].split('}')[0])
+        CT = AG
+    elif 'SYM' in line or 'GTR' in line:
+        AC = float(gtr_list[0].split('{')[1])
+        AG = float(gtr_list[1])
+        AT = float(gtr_list[2])
+        CG = float(gtr_list[3])
+        CT = float(gtr_list[4].split('}')[0])
+    return AC,AG,AT,CG,CT,A,C,G,T  
 
 for paras in tuple_list:
     classes, rates, length, ntaxa, replicates = paras
@@ -52,66 +135,61 @@ for paras in tuple_list:
         for line in b.readlines():
             if 'Proportion of invariable sites:' in line:
                 invariable = float(line.split()[-1])
-                
-
-    tw_list = []
-    row_index = file_name_row(file_name)
-    tw1 = extract_q(row_index, 'weight1')
-    tw_list.append(tw1)
-    tw2 = extract_q(row_index, 'weight2')
-    if isinstance(tw2, float) and str(tw2) == 'nan':
-        tw_list.append('')
-    else:
-        tw_list.append(tw2)
-    tw3 = extract_q(row_index, 'weight3')
-    if isinstance(tw3, float) and str(tw3) == 'nan':
-        tw_list.append('')
-    else:
-        tw_list.append(tw3)
-    tw4 = extract_q(row_index, 'weight4')
-    if isinstance(tw4, float) and str(tw4) == 'nan':
-        tw_list.append('')
-    else:
-        tw_list.append(tw4)
-    tw5 = extract_q(row_index, 'weight5')
-    if isinstance(tw5, float) and str(tw5) == 'nan':
-        tw_list.append('')
-    else:
-        tw_list.append(tw5)
-      
     
-    result_row = [file_name, classes, ntaxa, length, invariable] + tw_list
+    result_row = [file_name, classes, ntaxa, length, invariable]            
     
-    if os.path.isfile('cor/'+ file_name + '.iqtree'):
+    if int(classes) == 1:
+        tw_list = [1]
+        ew_list = [1]   
+        result_row = result_row + ['', '', '', '']
+        
+    else:
+        line = file_name_row(file_name)
+        tq_list = []
+        tw_list = []
+        for i in range(0, int(classes)):
+            s = [float(line[i*11+10]), float(line[i*11+11]), float(line[i*11+12]), float(line[i*11+13]), float(line[i*11+14])]
+            f = [float(line[i*11+15]), float(line[i*11+16]), float(line[i*11+17]), float(line[i*11+18])]
+            q = normal_q(s, f)
+            tq_list.append([q[0][1], q[0][2], q[0][3], q[1][2], q[1][3], q[2][3]])
+            tw_list.append(float(line[i*11+9]))
+            
+            
         with open('cor/' + file_name + '.iqtree') as b:
             for line in b.readlines():
                 if 'odel of substitution:' in line:
-                    if int(classes) > 1:
-                        est_q_list = line.split('{')[-1].split('}')[0].split(',')
-                        for q in range(int(classes)):
-                            if '+F' in est_q_list[q]:
-                                est_q_list[q] = est_q_list[q].replace("+FO", "")
-    
-    ew_list = ['','','','','']
-    if int(classes) == 1:
-        ew_list[0] = 1
-    else:
-        with open('cor/' + file_name + '.iqtree') as b:
+                    est_q_list = line.split('{')[-1].split('}')[0].split(',')
+                    for q in range(int(classes)):
+                        if '+F' in est_q_list[q]:
+                            est_q_list[q] = est_q_list[q].replace("+FO", "")
+            
+        eq_list = []                    
+        ew_list = []
+        with open('cor/'+ file_name + '.iqtree') as b:
             for line in b.readlines():
                 for i in range(1,int(classes)+1):
                     if str(i) + '  '+ est_q_list[i-1] in line:
-                        ew_list[i-1] = float(line.split()[-2])
-
-    result_row = result_row + ew_list
-
-    tw_list = [i for i in tw_list if i != '']
-    ew_list = [i for i in ew_list if i != '']
-    tw_list = sorted(tw_list, reverse=True)
-    ew_list = sorted(ew_list, reverse=True)
+                        ew_list.append(float(line.split()[-2]))
+                        q = get_para(line)[0:5]
+                        f = get_para(line)[5:9]
+                        q = normal_q(s, f)
+                        eq_list.append([q[0][1], q[0][2], q[0][3], q[1][2], q[1][3], q[2][3]])
+        ew_list = [n/sum(ew_list) for n in ew_list]
     
-    rmse = np.sqrt(np.mean((np.array(tw_list) - np.array(ew_list)) ** 2))
+        rmse_matrix = []
+        for i in range(int(classes)):
+            row_list = []
+            for j in range(int(classes)):
+                rmse = np.sqrt(np.mean((np.array(tq_list[i]) - np.array(eq_list[j])) ** 2))
+                row_list.append(rmse)
+            rmse_matrix.append(row_list)
+        
+        t_ali, e_ali = linear_sum_assignment(rmse_matrix)
+        sort_tw_list = [tw_list[i] for i in t_ali]
+        sort_ew_list = [ew_list[i] for i in e_ali]
+        w_rmse = np.sqrt(np.mean((np.array(sort_tw_list) - np.array(sort_ew_list)) ** 2))
 
-    result_row = result_row + [tw_list, ew_list, rmse]
+        result_row = result_row + [t_ali, e_ali, w_rmse, rmse_matrix]
     
     
     with open('result_weight.csv','a+',newline='') as csvf:
