@@ -78,7 +78,7 @@ def running_tuple(tuple_list):
                         q_list.append(q5)
         model_cmd = 'MIX"{'
         for i in range(len(q_list)):
-            model_cmd = model_cmd + q_list[i] + ','
+            model_cmd = model_cmd + 'GTR+FO,'
         model_cmd = model_cmd[:-1]
         model_cmd = model_cmd + '}+I+G"'    
     #run
