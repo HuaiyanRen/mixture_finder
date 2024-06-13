@@ -9,7 +9,7 @@ with open('result_c12.csv','w+',newline='') as csvf:
                        
 classes = [1] 
 rates = [2] # 0: +E, 1: +I, 2: +I+G
-length = [1000, 10000] #[1000,2000,5000,10000]
+length = [1000,2000,5000,10000]
 ntaxa = [100]
 replicates = list(np.arange(0,250,1))
 
