@@ -5,7 +5,7 @@ from scipy.stats import chi2
 with open('result_c12.csv','w+',newline='') as csvf:
     csv_write = csv.writer(csvf)
     csv_write.writerow(['name', 'classes',  'ntaxa', 'sites', 'invariable',
-                        'df1', 'llh1', 'df2', 'llh2', 'p_value', 'op1', 'op2', 'op3', 'op4'])
+                        'df1', 'llh1', 'df2', 'llh2', 'p_value', 'op1', 'op2', 'op3', 'op4', 'bic'])
                        
 classes = [1] 
 rates = [2] # 0: +E, 1: +I, 2: +I+G
@@ -41,6 +41,7 @@ for paras in tuple_list:
     
     df_list = []
     llh_list = []
+    bic_list = []
     
     with open('two/' + file_name + '.log') as b:
         for line in b.readlines():
@@ -49,6 +50,8 @@ for paras in tuple_list:
                 llh = float(line.split(';')[2].split()[-1])
                 df_list.append(df)
                 llh_list.append(llh)
+                bic = float(line.split(';')[3].split()[-1])
+                bic_list.append(bic)
                 
     p_value = chi2.cdf(2*(llh_list[1] - llh_list[0]), df_list[1] - df_list[0])
     
@@ -64,9 +67,11 @@ for paras in tuple_list:
         op3= 2
     if p_value > 0.999:
         op4= 2
+    bic_test = 1
+    if bic_list[0] > bic_list[1]:
+        bic_test = 2
     
-    
-    result_row = result_row + [df_list[0], llh_list[0], df_list[1], llh_list[1], 1-p_value, op1, op2, op3, op4]
+    result_row = result_row + [df_list[0], llh_list[0], df_list[1], llh_list[1], 1-p_value, op1, op2, op3, op4, bic_test]
     
     with open('result_c12.csv','a+',newline='') as csvf:
         csv_write = csv.writer(csvf)
