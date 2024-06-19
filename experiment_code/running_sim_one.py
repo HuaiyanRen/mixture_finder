@@ -1,6 +1,6 @@
 from multiprocessing import Pool
 from functools import partial
-import os
+import subprocess
 import numpy as np
 import argparse
 #import ast
@@ -36,14 +36,12 @@ def running_tuple(tuple_list):
     #file_name
     file_name = 'c' + str(classes) + '_r' + str(rates) + '_l' + str(length) + '_t' + str(ntaxa) + '_rep' + str(replicates)
     #run
-    if os.path.isfile('all/'+ file_name + '.iqtree'):
-        with open('all/'+ file_name + '.log') as b:
-                for line in b.readlines():
-                    if 'Best-fit model:' in line:
-                        c1_model = line.split()[2]
-                        break
-        cmd = '/scratch/te06/hr8997/software/iqtree-2.2.2.7.modelmix-Linux/bin/iqtree2 -s ' + file_name + '.fa -m '+c1_model+' -pre one/'+ file_name + ' -nt 1'
-        os.system(cmd)
+    
+    cmd = '/usr/bin/time -v /scratch/dx61/hr8997/software/iqtree-2.2.6.mix-Linux/bin/iqtree2 -s ' + file_name + '.fa -m MF -mrate E,I,G,I+G,R,I+R -pre onet/'+ file_name + ' -nt 1'
+    result = subprocess.run(cmd, shell=True, text=True, capture_output=True)
+    with open('onet/' + file_name + '_time.txt', 'w') as f:
+        #f.write(result.stdout)
+        f.write(result.stderr)
 
     
 # running
