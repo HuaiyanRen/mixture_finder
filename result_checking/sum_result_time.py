@@ -7,7 +7,8 @@ with open('result_time.csv','w+',newline='') as csvf:
     csv_write = csv.writer(csvf)
     csv_write.writerow(['name', 'classes',  'ntaxa', 'sites', 'invariable', 'rate', 'tree_length',
                         'optimal1', 'invar1', 'time1', 'mem1', 
-                        'optimal2', 'invar2', 'time2', 'mem2'])
+                        'optimal2', 'invar2', 'time2', 'mem2',
+                        'optimal3', 'invar3', 'time3', 'mem3'])
                        
 classes = [5] 
 rates = [2] # 0: +E, 1: +I, 2: +I+G
@@ -185,10 +186,8 @@ for paras in tuple_list:
                         mg = float(line.split()[-1])/1024
                         mg_list.append(mg)
         
-        if len(tg_list) == 1:
-            timeg = time_str_to_seconds(tg_list[0])
-        else:
-            timeg = time_str_to_seconds(tg_list[0])
+
+        timeg = time_str_to_seconds(tg_list[0])
         memg = max(mg_list)
                     
         result_row = result_row + [optimal, str(invar), timeg, memg]
@@ -196,6 +195,35 @@ for paras in tuple_list:
         #print(paras, 'method' + str(i))
         result_row = result_row + ['','','',''] 
         
+        
+    if os.path.isfile('onet/'+ file_name + '.iqtree'):
+        invar = 0 
+        with open('onet/' + file_name + '.iqtree') as b:
+            for line in b.readlines():
+                if 'Proportion of invariable sites:' in line:
+                    invar = float(line.split()[-1])
+       
+        #time and mem
+        tg_list = []
+        mg_list = []
+        if os.path.isfile('onet/'+ file_name + '_time.txt'):
+            with open('onet/'+ file_name + '_time.txt') as b:
+                for line in b.readlines():
+                    if 'Elapsed (wall clock) time (h:mm:ss or m:ss):' in line:
+                        tg = line.split()[-1]
+                        tg_list.append(tg)
+                    if 'Maximum resident set size (kbytes):' in line:
+                        mg = float(line.split()[-1])/1024
+                        mg_list.append(mg)
+        
+
+        timeg = time_str_to_seconds(tg_list[0])
+        memg = max(mg_list)
+                    
+        result_row = result_row + [1, str(invar), timeg, memg]
+    else:
+        #print(paras, 'method' + str(i))
+        result_row = result_row + ['','','','']     
 
     
     with open('result_time.csv','a+',newline='') as csvf:
