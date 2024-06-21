@@ -29,10 +29,15 @@ for i in range(len(tuple_list)):
 
 def time_str_to_seconds(time_str):
     parts = time_str.split(':')
-    hours = int(parts[0])
-    minutes = int(parts[1])
-    seconds = int(parts[2])
-    total = hours + minutes/60 + seconds/3600
+    if len(parts) == 3:
+        hours = int(parts[0])
+        minutes = int(parts[1])
+        seconds = int(parts[2])
+        total = hours*3600 + minutes*60 + seconds
+    elif len(parts) == 2:
+        minutes = int(parts[0])
+        seconds = float(parts[1])
+        total = minutes*60 + seconds
     return total
 
 def get_para(line):
@@ -152,7 +157,7 @@ for paras in tuple_list:
                         m_list.append(m)
             
         if len(t_list) == 1:
-            timem = time_str_to_seconds(t_list[0]) + 48
+            timem = time_str_to_seconds(t_list[0]) + 48*3600
         else:
             timem = time_str_to_seconds(t_list[0])
         memm = max(m_list)
