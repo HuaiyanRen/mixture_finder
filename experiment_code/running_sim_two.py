@@ -36,7 +36,7 @@ def running_tuple(tuple_list):
     #file_name
     file_name = 'c' + str(classes) + '_r' + str(rates) + '_l' + str(length) + '_t' + str(ntaxa) + '_rep' + str(replicates)
     #run
-    cmd = '/data/huaiyan/software/iqtree-2.2.6.mix-Linux/bin/iqtree2 -s ' + file_name + '.fa -m MIX+MF  -mrate E,I,G,I+G,R,I+R -qmax 2 -mrate-twice 0 -pre two/'+ file_name + ' -nt 1'
+    cmd = '/data/huaiyan/software/iqtree-2.3.5.onnxupdate-Linux-intel/bin/iqtree2 -s ' + file_name + '.fa -m MIX+MF -mrate E,I,G,I+G,R,I+R -qmax 2 -pre two/'+ file_name + ' -nt 1'
     os.system(cmd)
 
     
