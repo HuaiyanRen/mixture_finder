@@ -5,7 +5,7 @@ from scipy.stats import chi2
 with open('result_c12.csv','w+',newline='') as csvf:
     csv_write = csv.writer(csvf)
     csv_write.writerow(['name', 'classes',  'ntaxa', 'sites', 'invariable',
-                        'df1', 'llh1', 'df2', 'llh2', 'lrs', 'pvalue', 'op1', 'op2', 'op3', 'op4', 'bic'])
+                        'df1', 'llh1', 'df2', 'llh2', 'lrs', 'pvalue', 'op1', 'op2', 'op3', 'op4', 'bic', 'warning'])
                        
 classes = [1] 
 rates = [2] # 0: +E, 1: +I, 2: +I+G
@@ -39,18 +39,13 @@ for paras in tuple_list:
     
     result_row = [file_name, classes, ntaxa, length, invariable]
     
-    llh_opt_list = []
-    llh_alpha_list = []
     df_list = []
     llh_list = []
     bic_list = []
+    warning = 'false'
     
     with open('two/' + file_name + '.log') as b:
         for line in b.readlines():
-            if 'Optimal log-likelihood:' in line:
-                llh_opt_list.append(float(line.split()[-1]))
-            if 'Optimal pinv,alpha:' in line:
-                llh_alpha_list.append(float(line.split()[-1]))
             if '; df:' in line:
                 df = float(line.split(';')[1].split()[-1])
                 llh = float(line.split(';')[2].split()[-1])
@@ -58,13 +53,11 @@ for paras in tuple_list:
                 llh_list.append(llh)
                 bic = float(line.split(';')[3].split()[-1])
                 bic_list.append(bic)
+            if 'worse than the previous (k-1)-class mixture model' in line:
+                warning = 'true'
 
-    if len(llh_opt_list) == 3:
-        llh1 = llh_opt_list[1]
-    else:
-        llh1 = llh_alpha_list[0]
 
-    lrs = 2*(llh_list[1] - llh1)
+    lrs = 2*(llh_list[1] - llh_list[0])
                 
     p_value = chi2.cdf(lrs, df_list[1] - df_list[0])
     
@@ -84,7 +77,7 @@ for paras in tuple_list:
     if bic_list[0] > bic_list[1]:
         bic_test = 2
     
-    result_row = result_row + [df_list[0], llh1, df_list[1], llh_list[1], lrs, p_value, op1, op2, op3, op4, bic_test]
+    result_row = result_row + [df_list[0], llh_list[0], df_list[1], llh_list[1], lrs, p_value, op1, op2, op3, op4, bic_test, warning]
     
     with open('result_c12.csv','a+',newline='') as csvf:
         csv_write = csv.writer(csvf)
