@@ -5,13 +5,13 @@ import os
 with open('result.csv','w+',newline='') as csvf:
     csv_write = csv.writer(csvf)
     csv_write.writerow(['name', 'classes',  'ntaxa', 'sites', 'invariable', 'rate', 'tree_length', 'min_w',
-                        'optimal1', 'invar1', 'rate_o1',  'rate_re1', 'change1', 'tree_length1', 'nrf1', 'llh1', 'bic1', 'time1', 'ise_q1', 'ise_f1',
-                        'optimal2', 'invar2', 'rate_o2',  'rate_re2', 'change2', 'tree_length2', 'nrf2', 'llh2', 'bic2', 'time2', 'ise_q2', 'ise_f2',
-                        'tree_length0','nrf0', 'llh0', 'bic0', 'time0', 'ise_q0', 'ise_f0'])
+                        'optimal1', 'invar1', 'rate_o1',  'rate_re1', 'change1', 'tree_length1', 'nrf1', 'llh1', 'bic1', 'time1', 'mem1', 'ise_q1', 'ise_f1',
+                        'optimal2', 'invar2', 'rate_o2',  'rate_re2', 'change2', 'tree_length2', 'nrf2', 'llh2', 'bic2', 'time2', 'mem2', 'ise_q2', 'ise_f2',
+                        'tree_length0','nrf0', 'llh0', 'bic0', 'time0', 'mem0', 'ise_q0', 'ise_f0'])
                        
-classes = [1,2,3,4,5] 
+classes = [5]#[1,2,3,4,5] 
 rates = [2] # 0: +E, 1: +I, 2: +I+G
-length = [1000,2000,5000,10000]
+length = [1000]#,2000,5000,10000]
 ntaxa = [100]
 replicates = list(np.arange(0,20,1))
 
@@ -25,6 +25,19 @@ tuple_list = [0]*len(classes)*len(rates)*len(length)*len(ntaxa)*len(replicates)
 
 for i in range(len(tuple_list)):
     tuple_list[i] = classes_list[i], rates_list[i], length_list[i], ntaxa_list[i], replicates_list[i]
+
+def time_str_to_seconds(time_str):
+    parts = time_str.split(':')
+    if len(parts) == 3:
+        hours = int(parts[0])
+        minutes = int(parts[1])
+        seconds = int(parts[2])
+        total = hours*3600 + minutes*60 + seconds
+    elif len(parts) == 2:
+        minutes = int(parts[0])
+        seconds = float(parts[1])
+        total = minutes*60 + seconds
+    return total
 
 def get_para(line):
     gtr_all = line.split()[-1]
@@ -190,7 +203,7 @@ for paras in tuple_list:
         invar = 0 
         with open('all/' + file_name + '.iqtree') as b:
             for line in b.readlines():
-                if 'Best-fit model according to BIC:' in line:
+                if 'odel of substitution:' in line:
                     optimal = line.count(',') + 1
                     model_re = line.split()[-1]
                 if 'Proportion of invariable sites:' in line:
@@ -227,34 +240,41 @@ for paras in tuple_list:
         else:
             rate_re = 0
                 
-        if '+R' in model_o:
-            for k in range(2,11):
-                if 'R'+str(k) in model_o:
-                    rate_o = k+1
-        elif '+G' in model_o:
-            rate_o = 2
-        elif '+I' in model_o:
-            rate_o = 1    
-        else:
-            rate_o = 0    
-            
-            
-        change = 'equal'
-        if rate_re < rate_o:
-            change = 'small'
-        elif rate_re > rate_o:
-            change = 'large'
+# =============================================================================
+#         if '+R' in model_o:
+#             for k in range(2,11):
+#                 if 'R'+str(k) in model_o:
+#                     rate_o = k+1
+#         elif '+G' in model_o:
+#             rate_o = 2
+#         elif '+I' in model_o:
+#             rate_o = 1    
+#         else:
+#             rate_o = 0    
+#             
+#             
+#         change = 'equal'
+#         if rate_re < rate_o:
+#             change = 'small'
+#         elif rate_re > rate_o:
+#             change = 'large'
+# =============================================================================
         
-        #time
-        m_time = [] 
-        with open('all/' + file_name + '.log') as b:
-            for line in b.readlines():
-                if 'Time for fast ML tree search:' in line:
-                    m_time.append(float(line.split()[6]))
-                if 'CPU time for ModelFinder:' in line:
-                    m_time.append(float(line.split()[4]))
-                if 'CPU time used for tree search:' in line:
-                    m_time.append(float(line.split()[6]))
+        #time and mem
+        t_list = []
+        m_list = []
+        if os.path.isfile('all/'+ file_name + '_time.txt'):
+            with open('all/'+ file_name + '_time.txt') as b:
+                for line in b.readlines():
+                    if 'Elapsed (wall clock) time (h:mm:ss or m:ss):' in line:
+                        t = line.split()[-1]
+                        t_list.append(t)
+                    if 'Maximum resident set size (kbytes):' in line:
+                        m = float(line.split()[-1])/1024
+                        m_list.append(m)
+                        
+        timem = time_str_to_seconds(t_list[-1]) + 48*3600*(len(t_list) - 1)
+        memm = max(m_list)
         
         #ise
         with open('all/' + file_name + '.iqtree') as b:
@@ -368,16 +388,16 @@ for paras in tuple_list:
         ise_q = addendq_1 - 2*addendq_2 + addendq_3
         ise_f = addendf_1 - 2*addendf_2 + addendf_3          
         
-        result_row = result_row + [optimal, str(invar), str(rate_o), str(rate_re), change, tree_length, nrfm, llhm, bicm, sum(m_time), str(ise_q), str(ise_f)]
+        result_row = result_row + [optimal, str(invar), str(rate_re), str(rate_re), 'none', tree_length, nrfm, llhm, bicm, str(timem), str(memm), str(ise_q), str(ise_f)]
     else:
         #print(paras, 'method' + str(i))
-        result_row = result_row + ['','','','','','','','','','','','']
+        result_row = result_row + ['','','','','','','','','','','','','']
         
     if os.path.isfile('gtr/'+ file_name + '.iqtree'):
         invar = 0 
         with open('gtr/' + file_name + '.iqtree') as b:
             for line in b.readlines():
-                if 'Best-fit model according to BIC:' in line:
+                if 'odel of substitution:' in line:
                     optimal = line.count(',') + 1
                     model_re = line.split()[-1]
                 if 'Proportion of invariable sites:' in line:
@@ -414,34 +434,41 @@ for paras in tuple_list:
         else:
             rate_re = 0
                 
-        if '+R' in model_o:
-            for k in range(2,11):
-                if 'R'+str(k) in model_o:
-                    rate_o = k+1
-        elif '+G' in model_o:
-            rate_o = 2
-        elif '+I' in model_o:
-            rate_o = 1    
-        else:
-            rate_o = 0    
-            
-            
-        change = 'equal'
-        if rate_re < rate_o:
-            change = 'small'
-        elif rate_re > rate_o:
-            change = 'large'
+# =============================================================================
+#         if '+R' in model_o:
+#             for k in range(2,11):
+#                 if 'R'+str(k) in model_o:
+#                     rate_o = k+1
+#         elif '+G' in model_o:
+#             rate_o = 2
+#         elif '+I' in model_o:
+#             rate_o = 1    
+#         else:
+#             rate_o = 0    
+#             
+#             
+#         change = 'equal'
+#         if rate_re < rate_o:
+#             change = 'small'
+#         elif rate_re > rate_o:
+#             change = 'large'
+# =============================================================================
         
-        #time
-        g_time = [] 
-        with open('gtr/' + file_name + '.log') as b:
-            for line in b.readlines():
-                if 'Time for fast ML tree search:' in line:
-                    g_time.append(float(line.split()[6]))
-                if 'CPU time for ModelFinder:' in line:
-                    g_time.append(float(line.split()[4]))
-                if 'CPU time used for tree search:' in line:
-                    g_time.append(float(line.split()[6]))
+        #time and mem
+        t_list = []
+        m_list = []
+        if os.path.isfile('gtr/'+ file_name + '_time.txt'):
+            with open('gtr/'+ file_name + '_time.txt') as b:
+                for line in b.readlines():
+                    if 'Elapsed (wall clock) time (h:mm:ss or m:ss):' in line:
+                        t = line.split()[-1]
+                        t_list.append(t)
+                    if 'Maximum resident set size (kbytes):' in line:
+                        m = float(line.split()[-1])/1024
+                        m_list.append(m)
+                        
+        timeg = time_str_to_seconds(t_list[-1]) + 48*3600*(len(t_list) - 1)
+        memg = max(m_list)
                     
         #ise
         with open('gtr/'+ file_name + '.iqtree') as b:
@@ -560,10 +587,10 @@ for paras in tuple_list:
         ise_q = addendq_1 - 2*addendq_2 + addendq_3
         ise_f = addendf_1 - 2*addendf_2 + addendf_3
             
-        result_row = result_row + [optimal, str(invar), str(rate_o), str(rate_re), change, tree_length, nrfg, llhg, bicg, sum(g_time),str(ise_q),str(ise_f)]
+        result_row = result_row + [optimal, str(invar), str(rate_re), str(rate_re), 'none', tree_length, nrfg, llhg, bicg, str(timeg), str(memg),str(ise_q),str(ise_f)]
     else:
         #print(paras, 'method' + str(i))
-        result_row = result_row + ['','','','','','','','','','','',''] 
+        result_row = result_row + ['','','','','','','','','','','','',''] 
         
     if os.path.isfile('one/'+ file_name + '.iqtree'):
         invar = 0
@@ -586,16 +613,21 @@ for paras in tuple_list:
         else:
             nrf1 = ''
         
-        #time
-        o_time = []
-        with open('one/' + file_name + '.log') as b:
-            for line in b.readlines():
-                if 'Time for fast ML tree search:' in line:
-                    o_time.append(float(line.split()[6]))
-                if 'CPU time for ModelFinder:' in line:
-                    o_time.append(float(line.split()[4]))
-                if 'CPU time used for tree search:' in line:
-                    o_time.append(float(line.split()[6]))
+        #time and mem
+        t_list = []
+        m_list = []
+        if os.path.isfile('one/'+ file_name + '_time.txt'):
+            with open('one/'+ file_name + '_time.txt') as b:
+                for line in b.readlines():
+                    if 'Elapsed (wall clock) time (h:mm:ss or m:ss):' in line:
+                        t = line.split()[-1]
+                        t_list.append(t)
+                    if 'Maximum resident set size (kbytes):' in line:
+                        m = float(line.split()[-1])/1024
+                        m_list.append(m)
+                        
+        timeo = time_str_to_seconds(t_list[-1]) + 48*3600*(len(t_list) - 1)
+        memo = max(m_list)
         
         #ise
         optimal = 1
@@ -696,9 +728,9 @@ for paras in tuple_list:
         ise_q = addendq_1 - 2*addendq_2 + addendq_3
         ise_f = addendf_1 - 2*addendf_2 + addendf_3
             
-        result_row = result_row + [tree_length,nrf1, llh, bic, sum(o_time),str(ise_q),str(ise_f)]
+        result_row = result_row + [tree_length,nrf1, llh, bic, str(timeo), str(memo), str(ise_q),str(ise_f)]
     else:
-        result_row = result_row + ['','','','','','','']
+        result_row = result_row + ['','','','','','','','']
     
     with open('result.csv','a+',newline='') as csvf:
         csv_write = csv.writer(csvf)
