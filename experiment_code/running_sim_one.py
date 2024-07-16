@@ -37,9 +37,9 @@ def running_tuple(tuple_list):
     file_name = 'c' + str(classes) + '_r' + str(rates) + '_l' + str(length) + '_t' + str(ntaxa) + '_rep' + str(replicates)
     #run
     
-    cmd = '/usr/bin/time -v /scratch/dx61/hr8997/software/iqtree-2.2.6.mix-Linux/bin/iqtree2 -s ' + file_name + '.fa -m MF -mrate E,I,G,I+G,R,I+R -pre onet/'+ file_name + ' -nt 1'
+    cmd = '/usr/bin/time -v /scratch/dx61/hr8997/software/iqtree-2.3.5.onnxupdate-Linux-intel/bin/iqtree2 -s ' + file_name + '.fa -m MFP -mrate E,I,G,I+G,R,I+R -pre one/'+ file_name + ' -nt 1'
     result = subprocess.run(cmd, shell=True, text=True, capture_output=True)
-    with open('onet/' + file_name + '_time.txt', 'w') as f:
+    with open('one/' + file_name + '_time.txt', 'a+') as f:
         #f.write(result.stdout)
         f.write(result.stderr)
 
