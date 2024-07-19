@@ -29,19 +29,22 @@ def running_tuple(tuple_list):
     tree0 = file_name + '.treefile'
 
     if os.path.isfile('all/'+ file_name + '.iqtree'): 
-        treem = 'all/'+ file_name + '.treefile'
-        cmdm = '/scratch/dx61/hr8997/software/iqtree-2.3.5.onnxupdate-Linux-intel/bin/iqtree2 -rf ' + treem + ' ' + tree0 + ' -pre all/' + file_name + '_rf -redo -nt 1'
-        os.system(cmdm)
+        if not os.path.isfile('all/'+ file_name + '_rf.rfdist'): 
+            treem = 'all/'+ file_name + '.treefile'
+            cmdm = '/scratch/dx61/hr8997/software/iqtree-2.3.5.onnxupdate-Linux-intel/bin/iqtree2 -rf ' + treem + ' ' + tree0 + ' -pre all/' + file_name + '_rf -redo -nt 1'
+            os.system(cmdm)
         
     if os.path.isfile('one/'+ file_name + '.iqtree'):
-        tree1 = 'one/'+ file_name + '.treefile'
-        cmd1 = '/scratch/dx61/hr8997/software/iqtree-2.3.5.onnxupdate-Linux-intel/bin/iqtree2 -rf ' + tree1 + ' ' + tree0 + ' -pre one/' + file_name + '_rf -redo -nt 1'
-        os.system(cmd1)
+        if not os.path.isfile('one/'+ file_name + '_rf.rfdist'):
+            tree1 = 'one/'+ file_name + '.treefile'
+            cmd1 = '/scratch/dx61/hr8997/software/iqtree-2.3.5.onnxupdate-Linux-intel/bin/iqtree2 -rf ' + tree1 + ' ' + tree0 + ' -pre one/' + file_name + '_rf -redo -nt 1'
+            os.system(cmd1)
         
-    if os.path.isfile('gtr/'+ file_name + '.iqtree'): 
-        treeg = 'gtr/'+ file_name + '.treefile'
-        cmdg = '/scratch/dx61/hr8997/software/iqtree-2.3.5.onnxupdate-Linux-intel/bin/iqtree2 -rf ' + treeg + ' ' + tree0 + ' -pre gtr/' + file_name + '_rf -redo -nt 1'
-        os.system(cmdg)
+    if os.path.isfile('gtr/'+ file_name + '.iqtree'):
+        if not os.path.isfile('gtr/'+ file_name + '_rf.rfdist'):
+            treeg = 'gtr/'+ file_name + '.treefile'
+            cmdg = '/scratch/dx61/hr8997/software/iqtree-2.3.5.onnxupdate-Linux-intel/bin/iqtree2 -rf ' + treeg + ' ' + tree0 + ' -pre gtr/' + file_name + '_rf -redo -nt 1'
+            os.system(cmdg)
     
     
 partial_running = partial(running_tuple)
