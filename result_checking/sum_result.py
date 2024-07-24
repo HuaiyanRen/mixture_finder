@@ -9,9 +9,9 @@ with open('result.csv','w+',newline='') as csvf:
                         'optimal2', 'invar2', 'rate_o2',  'rate_re2', 'change2', 'tree_length2', 'nrf2', 'llh2', 'bic2', 'time2', 'mem2', 'ise_q2', 'ise_f2',
                         'tree_length0','nrf0', 'llh0', 'bic0', 'time0', 'mem0', 'ise_q0', 'ise_f0'])
                        
-classes = [5]#[1,2,3,4,5] 
+classes = [1,2,3,4,5] 
 rates = [2] # 0: +E, 1: +I, 2: +I+G
-length = [1000]#,2000,5000,10000]
+length = [10000]#,2000,5000,10000]
 ntaxa = [100]
 replicates = list(np.arange(0,20,1))
 
@@ -116,14 +116,14 @@ for paras in tuple_list:
     
     # dataset_name
     file_name = 'c' + str(classes) + '_r' + str(rates) + '_l' + str(length) + '_t' + str(ntaxa) + '_rep' + str(replicates)
-    simu_file = file_name + '.treefile.log'
+    simu_file = file_name + '.new.treefile.log'
     invariable = 0
     with open(simu_file) as b:
         for line in b.readlines():
             if 'Proportion of invariable sites:' in line:
                 invariable = float(line.split()[-1])
                 
-    true_treefile = file_name + '.treefile'
+    true_treefile = file_name + '.new.treefile'
     true_tree = open(true_treefile,'r').read()
     tts = true_tree.split(':')
     true_tree_length = 0
