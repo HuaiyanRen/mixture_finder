@@ -5,13 +5,13 @@ import os
 with open('result.csv','w+',newline='') as csvf:
     csv_write = csv.writer(csvf)
     csv_write.writerow(['name', 'classes',  'ntaxa', 'sites', 'invariable', 'rate', 'tree_length', 'min_w',
-                        'optimal1', 'invar1', 'rate_o1',  'rate_re1', 'change1', 'tree_length1', 'nrf1', 'llh1', 'bic1', 'time1', 'mem1', 'ise_q1', 'ise_f1',
-                        'optimal2', 'invar2', 'rate_o2',  'rate_re2', 'change2', 'tree_length2', 'nrf2', 'llh2', 'bic2', 'time2', 'mem2', 'ise_q2', 'ise_f2',
+                        'optimal1', 'invar1', 'rate_o1',  'rate_re1', 'change1', 'tree_length1', 'nrf1', 'llh1', 'bic1', 'time1', 'mem1', 'ise_q1', 'ise_f1', 'reinit1',
+                        'optimal2', 'invar2', 'rate_o2',  'rate_re2', 'change2', 'tree_length2', 'nrf2', 'llh2', 'bic2', 'time2', 'mem2', 'ise_q2', 'ise_f2', 'reinit2',
                         'tree_length0','nrf0', 'llh0', 'bic0', 'time0', 'mem0', 'ise_q0', 'ise_f0'])
                        
 classes = [1,2,3,4,5] 
 rates = [2] # 0: +E, 1: +I, 2: +I+G
-length = [10000]#,2000,5000,10000]
+length = [1000,2000,5000,10000]
 ntaxa = [100]
 replicates = list(np.arange(0,20,1))
 
@@ -116,14 +116,14 @@ for paras in tuple_list:
     
     # dataset_name
     file_name = 'c' + str(classes) + '_r' + str(rates) + '_l' + str(length) + '_t' + str(ntaxa) + '_rep' + str(replicates)
-    simu_file = file_name + '.new.treefile.log'
+    simu_file = file_name + '.treefile.log'
     invariable = 0
     with open(simu_file) as b:
         for line in b.readlines():
             if 'Proportion of invariable sites:' in line:
                 invariable = float(line.split()[-1])
                 
-    true_treefile = file_name + '.new.treefile'
+    true_treefile = file_name + '.treefile'
     true_tree = open(true_treefile,'r').read()
     tts = true_tree.split(':')
     true_tree_length = 0
@@ -220,7 +220,13 @@ for paras in tuple_list:
                 if 'chosen according to BIC' in line:
                     model_o = line.split()[2]
                     break
-                
+        
+        reinit = 0
+        with open('all/' + file_name + '.log') as b:
+            for line in b.readlines():
+                if ' with initial weight:' in line:
+                    reinit += 1
+        
         if os.path.isfile('all/'+ file_name + '_rf.rfdist'):
             with open('all/' + file_name + '_rf.rfdist') as b:
                 for line in b.readlines():
@@ -388,10 +394,11 @@ for paras in tuple_list:
         ise_q = addendq_1 - 2*addendq_2 + addendq_3
         ise_f = addendf_1 - 2*addendf_2 + addendf_3          
         
-        result_row = result_row + [optimal, str(invar), str(rate_re), str(rate_re), 'none', tree_length, nrfm, llhm, bicm, str(timem), str(memm), str(ise_q), str(ise_f)]
+        result_row = result_row + [optimal, str(invar), str(rate_re), str(rate_re), 'none', tree_length, nrfm, llhm, bicm, 
+                                   str(timem), str(memm), str(ise_q), str(ise_f),str(reinit)]
     else:
         #print(paras, 'method' + str(i))
-        result_row = result_row + ['','','','','','','','','','','','','']
+        result_row = result_row + ['','','','','','','','','','','','','','']
         
     if os.path.isfile('gtr/'+ file_name + '.iqtree'):
         invar = 0 
@@ -415,6 +422,12 @@ for paras in tuple_list:
                     model_o = line.split()[2]
                     break
         
+        reinit = 0
+        with open('gtr/' + file_name + '.log') as b:
+            for line in b.readlines():
+                if ' with initial weight:' in line:
+                    reinit += 1
+                    
         if os.path.isfile('gtr/'+ file_name + '_rf.rfdist'):
             with open('gtr/' + file_name + '_rf.rfdist') as b:
                 for line in b.readlines():
@@ -587,10 +600,11 @@ for paras in tuple_list:
         ise_q = addendq_1 - 2*addendq_2 + addendq_3
         ise_f = addendf_1 - 2*addendf_2 + addendf_3
             
-        result_row = result_row + [optimal, str(invar), str(rate_re), str(rate_re), 'none', tree_length, nrfg, llhg, bicg, str(timeg), str(memg),str(ise_q),str(ise_f)]
+        result_row = result_row + [optimal, str(invar), str(rate_re), str(rate_re), 'none', tree_length, nrfg, llhg, bicg, 
+                                   str(timeg), str(memg),str(ise_q),str(ise_f), str(reinit)]
     else:
         #print(paras, 'method' + str(i))
-        result_row = result_row + ['','','','','','','','','','','','',''] 
+        result_row = result_row + ['','','','','','','','','','','','','',''] 
         
     if os.path.isfile('one/'+ file_name + '.iqtree'):
         invar = 0
