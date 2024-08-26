@@ -279,7 +279,7 @@ for paras in tuple_list:
                         m = float(line.split()[-1])/1024
                         m_list.append(m)
                         
-        timem = time_str_to_seconds(t_list[-1]) + 48*3600*(len(t_list) - 1)
+        timem = time_str_to_seconds(t_list[0]) #+ 48*3600*(len(t_list) - 1)
         memm = max(m_list)
         
         #ise
@@ -480,7 +480,7 @@ for paras in tuple_list:
                         m = float(line.split()[-1])/1024
                         m_list.append(m)
                         
-        timeg = time_str_to_seconds(t_list[-1]) + 48*3600*(len(t_list) - 1)
+        timeg = time_str_to_seconds(t_list[0]) #+ 48*3600*(len(t_list) - 1)
         memg = max(m_list)
                     
         #ise
